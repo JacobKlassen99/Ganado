@@ -1,0 +1,6 @@
+{
+  "name": "Registro de Ganado",
+  "description": "Aplicación para registro y seguimiento de ganado, control de peso, genealogía y fichas individuales.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
