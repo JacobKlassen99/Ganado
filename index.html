@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Registrar Ganado</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232d6a4f'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z'/%3E%3C/svg%3E">
+</head>
+<body>
+
+  <!-- Barra de Navegación Superior -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand" onclick="showView('home')">
+        <svg class="brand-icon" viewBox="0 0 24 24">
+          <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/>
+        </svg>
+        <span class="brand-title">Registrar Ganado</span>
+      </div>
+      <div class="header-actions">
+        <button id="refreshBtn" class="icon-btn" onclick="fetchData(true)" title="Sincronizar Google Sheets">
+          <svg viewBox="0 0 24 24">
+            <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-container">
+
+    <!-- Banner de Estado de Conexión -->
+    <div id="statusBanner" class="status-banner loading">
+      <span id="statusBannerText">Conectando con Google Sheets...</span>
+      <span id="statusBannerTime"></span>
+    </div>
+
+    <!-- 1. VISTA: PANTALLA PRINCIPAL -->
+    <section id="view-home" class="view active">
+      
+      <!-- Resumen Métricas -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div id="metricTotalGanado" class="number">--</div>
+          <div class="label">Total Ganado</div>
+        </div>
+        <div class="metric-card">
+          <div id="metricMachos" class="number">--</div>
+          <div class="label">Machos</div>
+        </div>
+        <div class="metric-card">
+          <div id="metricHembras" class="number">--</div>
+          <div class="label">Hembras</div>
+        </div>
+      </div>
+
+      <!-- Botones Grandes de Acción Rápida -->
+      <div class="action-buttons-group">
+        <button class="btn-primary-large" onclick="showView('registrar-ganado')">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor">
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+          </svg>
+          Registrar ganado
+        </button>
+
+        <button class="btn-accent-large" onclick="showView('registrar-pesaje')">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/>
+          </svg>
+          Registrar pesaje
+        </button>
+
+        <button class="btn-secondary-large" onclick="showView('ver-ganado')">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor">
+            <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/>
+          </svg>
+          Ver ganado
+        </button>
+      </div>
+
+      <!-- Últimos Pesajes Registrados -->
+      <div class="section-title">
+        <span>Últimos Pesajes</span>
+      </div>
+      <div class="card" id="recentPesajesList">
+        <div style="text-align: center; color: var(--text-muted); padding: 12px;">Cargando pesajes...</div>
+      </div>
+    </section>
+
+    <!-- 2. VISTA: REGISTRAR GANADO -->
+    <section id="view-registrar-ganado" class="view">
+      <div class="back-bar" onclick="showView('home')">
+        <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+        <span>Volver al inicio</span>
+      </div>
+
+      <div class="form-card">
+        <h2 style="margin-bottom: 18px; font-size: 1.3rem; font-weight: 800; color: var(--primary-dark);">Registrar Nuevo Ganado</h2>
+        <form id="formGanado" onsubmit="submitGanado(event)">
+          
+          <div class="form-group">
+            <label for="ganadoNumero">Nº Ganado *</label>
+            <input type="text" id="ganadoNumero" class="form-input" placeholder="Ej: 128" required autofocus>
+          </div>
+
+          <div class="form-group">
+            <label>Sexo *</label>
+            <div class="radio-group">
+              <label class="radio-label selected" id="labelSexoMacho" onclick="selectSexo('Macho')">
+                <input type="radio" name="sexo" value="Macho" checked> Macho
+              </label>
+              <label class="radio-label" id="labelSexoHembra" onclick="selectSexo('Hembra')">
+                <input type="radio" name="sexo" value="Hembra"> Hembra
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="ganadoFechaNacimiento">Fecha de Nacimiento *</label>
+            <input type="date" id="ganadoFechaNacimiento" class="form-input" required>
+          </div>
+
+          <div class="form-group">
+            <label for="ganadoMadre">Madre (Seleccionar o ingresar Nº)</label>
+            <select id="ganadoMadre" class="form-select">
+              <option value="">-- Sin madre asignada --</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="ganadoPadre">Padre (Seleccionar o ingresar Nº)</label>
+            <select id="ganadoPadre" class="form-select">
+              <option value="">-- Sin padre asignado --</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="ganadoEstado">Estado</label>
+            <select id="ganadoEstado" class="form-select">
+              <option value="Actual" selected>Actual</option>
+              <option value="Activo">Activo</option>
+              <option value="Gestante">Gestante</option>
+              <option value="En engorde">En engorde</option>
+              <option value="Vendido">Vendido</option>
+              <option value="Muerto">Muerto</option>
+            </select>
+          </div>
+
+          <button type="submit" id="btnSubmitGanado" class="btn-primary-large" style="width: 100%; margin-top: 10px;">
+            <span id="btnSubmitGanadoText">Guardar en Google Sheets</span>
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- 3. VISTA: REGISTRAR PESAJE -->
+    <section id="view-registrar-pesaje" class="view">
+      <div class="back-bar" onclick="showView('home')">
+        <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+        <span>Volver al inicio</span>
+      </div>
+
+      <div class="form-card">
+        <h2 style="margin-bottom: 18px; font-size: 1.3rem; font-weight: 800; color: var(--primary-dark);">Registrar Pesaje</h2>
+        <form id="formPesaje" onsubmit="submitPesaje(event)">
+          
+          <div class="form-group">
+            <label for="pesajeNumeroGanado">Nº Ganado *</label>
+            <select id="pesajeNumeroGanado" class="form-select" required onchange="onPesajeAnimalChange()">
+              <option value="">-- Seleccione un animal --</option>
+            </select>
+          </div>
+
+          <!-- Información del último peso de referencia -->
+          <div id="pesajeRefBox" style="display: none; background: #f1f5f9; padding: 10px 14px; border-radius: var(--radius-sm); margin-bottom: 16px; font-size: 0.88rem;">
+            <strong>Último peso registrado:</strong> <span id="pesajeRefVal">-- kg</span> (<span id="pesajeRefFecha">--</span>)
+          </div>
+
+          <div class="form-group">
+            <label for="pesajeFecha">Fecha del pesaje *</label>
+            <input type="date" id="pesajeFecha" class="form-input" required>
+          </div>
+
+          <div class="form-group">
+            <label for="pesajePeso">Peso (kg) *</label>
+            <input type="number" step="0.1" id="pesajePeso" class="form-input" placeholder="Ej: 320.5" required>
+          </div>
+
+          <div class="form-group">
+            <label for="pesajeObservacion">Observación</label>
+            <input type="text" id="pesajeObservacion" class="form-input" placeholder="Ej: Buen aumento, control mensual, etc.">
+          </div>
+
+          <button type="submit" id="btnSubmitPesaje" class="btn-accent-large" style="width: 100%; margin-top: 10px;">
+            <span id="btnSubmitPesajeText">Guardar Pesaje en Google Sheets</span>
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- 4. VISTA: VER GANADO (LISTA) -->
+    <section id="view-ver-ganado" class="view">
+      <div class="back-bar" onclick="showView('home')">
+        <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+        <span>Volver al inicio</span>
+      </div>
+
+      <div class="search-filter-bar">
+        <div class="search-input-wrapper">
+          <svg class="search-icon" viewBox="0 0 24 24">
+            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+          </svg>
+          <input type="text" id="searchInput" class="search-input" placeholder="Buscar por Nº de ganado..." oninput="filterGanadoList()">
+        </div>
+
+        <div class="filter-chips">
+          <div class="chip active" onclick="setFilterSexo('Todos', this)">Todos</div>
+          <div class="chip" onclick="setFilterSexo('Macho', this)">Machos</div>
+          <div class="chip" onclick="setFilterSexo('Hembra', this)">Hembras</div>
+        </div>
+      </div>
+
+      <div id="ganadoCardsContainer">
+        <!-- Tarjetas dinámicas generadas en app.js -->
+      </div>
+    </section>
+
+    <!-- 5 & 6. VISTA: FICHA INDIVIDUAL DE ANIMAL (DETALLE, FAMILIA, HISTORIAL) -->
+    <section id="view-ficha-animal" class="view">
+      <div class="back-bar" onclick="showView('ver-ganado')">
+        <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+        <span>Volver a la lista</span>
+      </div>
+
+      <!-- Encabezado de la Ficha -->
+      <div class="ficha-header-card">
+        <div class="ficha-header-title">
+          <div>
+            <span style="font-size: 0.85rem; text-transform: uppercase; opacity: 0.9;">Ficha del Animal</span>
+            <h2 id="fichaNumero">Nº --</h2>
+          </div>
+          <span id="fichaBadgeSexo" class="badge" style="background: white; color: var(--primary-dark);">--</span>
+        </div>
+        <div style="margin-top: 14px; font-size: 0.92rem; opacity: 0.95; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+          <div><strong>Nacimiento:</strong> <span id="fichaFechaNac">--</span></div>
+          <div><strong>Edad:</strong> <span id="fichaEdad">--</span></div>
+          <div><strong>Estado:</strong> <span id="fichaEstado">--</span></div>
+          <div><strong>Total Pesajes:</strong> <span id="fichaTotalPesajes">--</span></div>
+        </div>
+      </div>
+
+      <!-- Resumen de Peso -->
+      <div class="metrics-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 14px;">
+        <div class="metric-card">
+          <div id="fichaPesoActual" class="number">-- kg</div>
+          <div class="label">Último Peso</div>
+        </div>
+        <div class="metric-card">
+          <div id="fichaGananciaTotal" class="number">-- kg</div>
+          <div class="label">Aumento Total</div>
+        </div>
+      </div>
+
+      <!-- Botón Rápido: Agregar Pesaje a este Animal -->
+      <button class="btn-accent-large" style="width: 100%; margin-bottom: 18px;" onclick="iniciarPesajeParaAnimal(currentSelectedAnimal)">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+          <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+        </svg>
+        Registrar pesaje para este animal
+      </button>
+
+      <!-- Genealogía y Familia -->
+      <div class="card">
+        <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 6px;">Familia y Genealogía</h3>
+        <div class="family-tree-grid">
+          <div class="family-box">
+            <div class="role">Madre</div>
+            <div id="fichaMadre" class="number">--</div>
+          </div>
+          <div class="family-box">
+            <div class="role">Padre</div>
+            <div id="fichaPadre" class="number">--</div>
+          </div>
+        </div>
+
+        <div style="margin-top: 14px;">
+          <div style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;">
+            Hijos Registrados (<span id="fichaCountHijos">0</span>)
+          </div>
+          <div id="fichaHijosList" style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <span style="color: var(--text-muted); font-size: 0.88rem;">No tiene hijos registrados.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Historial Completo de Pesajes -->
+      <div class="card">
+        <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 10px;">Historial de Pesajes</h3>
+        <div style="overflow-x: auto;">
+          <table class="pesaje-history-table">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Peso</th>
+                <th>Aumento</th>
+                <th>Observación</th>
+              </tr>
+            </thead>
+            <tbody id="fichaPesajesTableBody">
+              <!-- Filas dinámicas -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Notificaciones Toast -->
+  <div id="toast" class="toast">Mensaje de notificación</div>
+
+  <!-- Script Principal -->
+  <script src="app.js"></script>
+</body>
+</html>

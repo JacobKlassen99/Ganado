@@ -22,6 +22,6 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "Registro de Ganado"
+rootProject.name = "Registrar Ganado"
 
 include(":app")
