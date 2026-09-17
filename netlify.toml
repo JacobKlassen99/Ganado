@@ -1,4 +1,8 @@
-/* Netlify configuration for Single Page Application (SPA) */
+# Netlify configuration for Registrar Ganado Web App
+
+[build]
+  publish = "."
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
