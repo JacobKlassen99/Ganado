@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1b4332" />
+      <stop offset="100%" stop-color="#2d6a4f" />
+    </linearGradient>
+    <!-- Ear Shadow -->
+    <linearGradient id="earInner" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f87171" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#ef4444" stop-opacity="0.9" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Background Canvas -->
+  <rect width="512" height="512" rx="110" fill="url(#bgGrad)" />
+
+  <!-- Subtle ring decoration -->
+  <circle cx="256" cy="256" r="210" fill="none" stroke="#52b788" stroke-width="4" stroke-opacity="0.3" />
+
+  <g filter="url(#shadow)">
+    <!-- Horns -->
+    <path d="M150 175 C 130 110, 80 85, 45 95 C 40 100, 48 118, 75 130 C 110 145, 130 185, 140 205 Z" fill="#d97706" stroke="#b45309" stroke-width="3" stroke-linejoin="round" />
+    <path d="M362 175 C 382 110, 432 85, 467 95 C 472 100, 464 118, 437 130 C 402 145, 382 185, 372 205 Z" fill="#d97706" stroke="#b45309" stroke-linejoin="round" stroke-width="3" />
+
+    <!-- Left Ear -->
+    <path d="M145 210 C 95 195, 45 220, 35 245 C 40 260, 85 270, 135 250 Z" fill="#ffffff" />
+    <path d="M130 216 C 90 206, 55 224, 48 242 C 55 252, 85 258, 122 244 Z" fill="url(#earInner)" />
+
+    <!-- Right Ear -->
+    <path d="M367 210 C 417 195, 467 220, 477 245 C 472 260, 427 270, 377 250 Z" fill="#ffffff" />
+    <path d="M382 216 C 422 206, 457 224, 464 242 C 457 252, 427 258, 390 244 Z" fill="url(#earInner)" />
+
+    <!-- Head / Forehead Base -->
+    <path d="M140 185 C 170 165, 342 165, 372 185 C 400 230, 395 320, 360 360 C 330 380, 182 380, 152 360 C 117 320, 112 230, 140 185 Z" fill="#ffffff" />
+
+    <!-- Distinctive Cow Patches / Manchas (Modern livestock emblem) -->
+    <!-- Left Crown Patch -->
+    <path d="M140 185 C 160 170, 220 175, 225 215 C 230 250, 185 270, 170 290 C 150 280, 124 250, 126 220 Z" fill="#1b4332" />
+    <!-- Right temple patch -->
+    <path d="M372 185 C 355 170, 310 180, 315 220 C 320 250, 360 265, 385 245 Z" fill="#1b4332" opacity="0.9" />
+
+    <!-- Eyes -->
+    <ellipse cx="185" cy="265" rx="15" ry="17" fill="#0f172a" />
+    <circle cx="180" cy="259" r="5" fill="#ffffff" />
+    
+    <ellipse cx="327" cy="265" rx="15" ry="17" fill="#0f172a" />
+    <circle cx="322" cy="259" r="5" fill="#ffffff" />
+
+    <!-- Big Soft Muzzle / Hocico -->
+    <ellipse cx="256" cy="380" rx="116" ry="76" fill="#fed7aa" stroke="#fcd34d" stroke-width="2" />
+
+    <!-- Nostrils / Ollares -->
+    <ellipse cx="218" cy="378" rx="16" ry="24" fill="#9a3412" transform="rotate(-12 218 378)" />
+    <ellipse cx="294" cy="378" rx="16" ry="24" fill="#9a3412" transform="rotate(12 294 378)" />
+
+    <!-- Gentle Mouth Line -->
+    <path d="M236 424 Q 256 436 276 424" fill="none" stroke="#9a3412" stroke-width="4.5" stroke-linecap="round" />
+
+    <!-- Ear Tag (Caravana/Arete de Identificación Ganadera) -->
+    <polygon points="120,250 142,254 135,285 112,280" fill="#f59e0b" stroke="#d97706" stroke-width="2" />
+    <circle cx="128" cy="254" r="3" fill="#ffffff" />
+  </g>
+</svg>

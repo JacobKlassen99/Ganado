@@ -657,3 +657,283 @@ body {
   border: 3px solid #e2e8f0;
   border-top: 3px solid var(--primary);
 }
+
+/* --- Mejoras PWA: Botón Instalar, Banner de Actualización y Modal --- */
+
+/* Botón Instalar App en Header y Home */
+.install-header-btn {
+  background: var(--accent);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  box-shadow: 0 2px 6px rgba(217, 119, 6, 0.3);
+}
+
+.install-header-btn:active {
+  transform: scale(0.96);
+  background: #b45309;
+}
+
+.install-header-btn svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+/* Tarjeta / Botón de Instalación en Pantalla Principal */
+.install-app-banner {
+  background: linear-gradient(135deg, #1b4332, #2d6a4f);
+  color: #ffffff;
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+  box-shadow: var(--card-shadow);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.install-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.install-banner-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  flex-shrink: 0;
+}
+
+.install-banner-texts h4 {
+  font-size: 0.98rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.install-banner-texts p {
+  font-size: 0.8rem;
+  opacity: 0.88;
+  margin-top: 2px;
+}
+
+.btn-install-cta {
+  background: var(--accent);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 10px 16px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: transform 0.1s;
+}
+
+.btn-install-cta:active {
+  transform: scale(0.96);
+}
+
+/* Banner Notificación "Nueva versión disponible" */
+.update-notification-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10000;
+  background: #1b4332;
+  color: #ffffff;
+  border-bottom: 3px solid var(--accent);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  padding: 12px 16px;
+  animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+
+.update-bar-container {
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.update-bar-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.update-bar-info svg {
+  width: 26px;
+  height: 26px;
+  fill: var(--accent-light);
+  flex-shrink: 0;
+}
+
+.update-bar-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.update-bar-sub {
+  font-size: 0.78rem;
+  opacity: 0.85;
+}
+
+.update-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-update-now {
+  background: var(--accent);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.btn-update-now:active {
+  transform: scale(0.96);
+}
+
+.btn-update-dismiss {
+  background: transparent;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Modal de Instrucciones de Instalación Manual */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 10001;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-sheet {
+  background: #ffffff;
+  width: 100%;
+  max-width: 540px;
+  border-top-left-radius: 24px;
+  border-top-right-radius: 24px;
+  padding: 24px 20px 32px 20px;
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.2);
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.modal-overlay.active .modal-sheet {
+  transform: translateY(0);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.modal-header h3 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--primary-dark);
+}
+
+.modal-close-btn {
+  background: #f1f5f9;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-muted);
+}
+
+.install-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.install-step-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: var(--bg-color);
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.install-step-num {
+  background: var(--primary);
+  color: #ffffff;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-size: 0.85rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.install-step-text {
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: var(--text-main);
+}
+

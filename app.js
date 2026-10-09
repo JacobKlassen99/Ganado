@@ -23,6 +23,9 @@ document.addEventListener("DOMContentLoaded", () => {
   if (dateNac) dateNac.value = today;
   if (datePesaje) datePesaje.value = today;
 
+  // Inicializar PWA (Service Worker, Instalación y Actualizaciones)
+  initPWA();
+
   // Cargar datos vivos desde Google Sheets
   fetchData();
 });
@@ -641,3 +644,211 @@ function openFichaAnimal(numero) {
     `;
   }).join("");
 }
+
+// ==========================================
+// PWA: INSTALACIÓN Y ACTUALIZACIONES EN VIVO
+// ==========================================
+
+let deferredPrompt = null;
+let waitingServiceWorker = null;
+let swRegistration = null;
+
+// 1. Inicializar PWA
+function initPWA() {
+  // Comprobar si ya está instalada o ejecutándose en modo standalone
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+                       window.navigator.standalone === true;
+
+  if (isStandalone) {
+    hideInstallUI();
+  }
+
+  // Capturar evento beforeinstallprompt (Chrome / Android / Edge)
+  window.addEventListener('beforeinstallprompt', (e) => {
+    // Evitar que el mininfobar automático aparezca
+    e.preventDefault();
+    deferredPrompt = e;
+    showInstallUI();
+  });
+
+  // Evento cuando la aplicación fue instalada con éxito
+  window.addEventListener('appinstalled', () => {
+    deferredPrompt = null;
+    hideInstallUI();
+    showToast('¡Registrar Ganado se instaló correctamente!', 'success');
+  });
+
+  // Registrar Service Worker para soporte offline y actualizaciones automáticas
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js')
+      .then((reg) => {
+        swRegistration = reg;
+
+        // Comprobar si ya hay un worker esperando activación
+        if (reg.waiting) {
+          waitingServiceWorker = reg.waiting;
+          notifyUpdateAvailable();
+        }
+
+        // Detectar si se está instalando un nuevo service worker
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          if (newWorker) {
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                // Nuevo contenido disponible
+                waitingServiceWorker = newWorker;
+                notifyUpdateAvailable();
+              }
+            });
+          }
+        });
+
+        // Buscar actualizaciones periódicamente cada 15 minutos en segundo plano
+        setInterval(() => {
+          try {
+            reg.update();
+          } catch (e) {
+            console.error('Error al verificar actualización:', e);
+          }
+        }, 15 * 60 * 1000);
+      })
+      .catch((err) => {
+        console.warn('Error al registrar Service Worker:', err);
+      });
+
+    // Escuchar cuando el nuevo Service Worker toma el control para recargar
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!refreshing) {
+        refreshing = true;
+        window.location.reload();
+      }
+    });
+  }
+}
+
+// 2. Control de la interfaz de instalación
+function showInstallUI() {
+  const headerBtn = document.getElementById('headerInstallBtn');
+  const homeBanner = document.getElementById('homeInstallBanner');
+  if (headerBtn) headerBtn.style.display = 'flex';
+  if (homeBanner) homeBanner.style.display = 'flex';
+}
+
+function hideInstallUI() {
+  const headerBtn = document.getElementById('headerInstallBtn');
+  const homeBanner = document.getElementById('homeInstallBanner');
+  if (headerBtn) headerBtn.style.display = 'none';
+  if (homeBanner) homeBanner.style.display = 'none';
+}
+
+// Ejecutar acción al hacer clic en "Instalar aplicación"
+async function triggerInstallPrompt() {
+  if (deferredPrompt) {
+    try {
+      // Mostrar el diálogo nativo de instalación
+      deferredPrompt.prompt();
+      const choiceResult = await deferredPrompt.userChoice;
+      if (choiceResult.outcome === 'accepted') {
+        deferredPrompt = null;
+        hideInstallUI();
+      }
+    } catch (err) {
+      console.error('Error al invocar instalación:', err);
+      openInstallGuide();
+    }
+  } else {
+    // Si el navegador no soporta prompt programático (como iOS Safari o si ya se mostró),
+    // mostramos la guía visual con pasos claros paso a paso
+    openInstallGuide();
+  }
+}
+
+// Mostrar y cerrar modal con guía manual
+function openInstallGuide() {
+  const modal = document.getElementById('installGuideModal');
+  if (modal) modal.classList.add('active');
+}
+
+function closeInstallGuide(event) {
+  if (event && event.target && event.target.id !== 'installGuideModal' && !event.target.classList.contains('modal-close-btn') && event.target.tagName !== 'BUTTON') {
+    return;
+  }
+  const modal = document.getElementById('installGuideModal');
+  if (modal) modal.classList.remove('active');
+}
+
+// 3. Notificación de Nueva Versión (Actualizaciones PWA)
+function notifyUpdateAvailable() {
+  const bar = document.getElementById('updateNotificationBar');
+  if (bar) {
+    bar.style.display = 'block';
+  }
+}
+
+// Opción: "Descartar"
+// Cierra el aviso temporalmente para no molestar la sesión actual,
+// pero volverá a aparecer en la siguiente entrada mientras la actualización siga pendiente.
+function dismissUpdatePrompt() {
+  const bar = document.getElementById('updateNotificationBar');
+  if (bar) {
+    bar.style.display = 'none';
+  }
+}
+
+// Verificar si hay datos no guardados en los formularios
+function hasUnsavedData() {
+  // Comprobar formulario de Ganado
+  const numGanado = document.getElementById('ganadoNumero');
+  if (numGanado && numGanado.value.trim() !== '') {
+    return 'Tienes datos ingresados en el formulario de Registrar Ganado.';
+  }
+
+  // Comprobar formulario de Pesaje
+  const pesoInput = document.getElementById('pesajePeso');
+  if (pesoInput && pesoInput.value.trim() !== '') {
+    return 'Tienes datos ingresados en el formulario de Registrar Pesaje.';
+  }
+
+  return null;
+}
+
+// Opción: "Actualizar ahora"
+async function applyAppUpdate() {
+  // 1. Proteger información sin guardar
+  const unsavedMsg = hasUnsavedData();
+  if (unsavedMsg) {
+    const confirmUpdate = window.confirm(
+      `${unsavedMsg}\n\nSi actualizas ahora, los datos no guardados se perderán.\n¿Deseas continuar y actualizar la aplicación de todos modos?`
+    );
+    if (!confirmUpdate) {
+      return;
+    }
+  }
+
+  const btn = document.getElementById('btnApplyUpdate');
+  if (btn) {
+    btn.innerHTML = `<span class="loader" style="width: 14px; height: 14px; vertical-align: middle;"></span> Actualizando...`;
+    btn.disabled = true;
+  }
+
+  // Si hay un service worker en espera, le enviamos el mensaje SKIP_WAITING
+  if (waitingServiceWorker) {
+    waitingServiceWorker.postMessage({ type: 'SKIP_WAITING' });
+  } else if (swRegistration && swRegistration.waiting) {
+    swRegistration.waiting.postMessage({ type: 'SKIP_WAITING' });
+  } else {
+    // Si por alguna razón no está referenciado directamente, recargamos limpiando caché
+    if ('caches' in window) {
+      try {
+        const keys = await caches.keys();
+        await Promise.all(keys.map(k => caches.delete(k)));
+      } catch (e) {
+        console.warn('Error al limpiar caché:', e);
+      }
+    }
+    window.location.reload();
+  }
+}
+
