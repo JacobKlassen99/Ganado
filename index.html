@@ -46,9 +46,17 @@
   <!-- Barra de Navegación Superior -->
   <header class="app-header">
     <div class="header-container">
-      <div class="brand" onclick="showView('home')">
-        <img src="icons/icon-96.png" alt="Ganado" style="width: 32px; height: 32px; border-radius: 8px; vertical-align: middle;">
-        <span class="brand-title">Registrar Ganado</span>
+      <div class="header-left">
+        <!-- Botón Atrás en la cabecera (visible en pantallas secundarias) -->
+        <button id="headerBackBtn" class="header-back-btn" onclick="handleBackAction()" title="Regresar" aria-label="Regresar" style="display: none;">
+          <svg viewBox="0 0 24 24">
+            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+          </svg>
+        </button>
+        <div class="brand" onclick="showView('home')">
+          <img src="icons/icon-96.png" alt="Ganado" style="width: 32px; height: 32px; border-radius: 8px; vertical-align: middle;">
+          <span class="brand-title">Registrar Ganado</span>
+        </div>
       </div>
       <div class="header-actions">
         <!-- Botón visible de Instalación en Cabecera -->
@@ -59,7 +67,7 @@
           <span>Instalar</span>
         </button>
 
-        <button id="refreshBtn" class="icon-btn" onclick="fetchData(true)" title="Sincronizar Google Sheets">
+        <button id="refreshBtn" class="icon-btn" onclick="fetchData(true)" title="Actualizar datos">
           <svg viewBox="0 0 24 24">
             <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
           </svg>
@@ -89,7 +97,7 @@
 
     <!-- Banner de Estado de Conexión -->
     <div id="statusBanner" class="status-banner loading">
-      <span id="statusBannerText">Conectando con Google Sheets...</span>
+      <span id="statusBannerText">Conectando...</span>
       <span id="statusBannerTime"></span>
     </div>
 
@@ -147,9 +155,9 @@
 
     <!-- 2. VISTA: REGISTRAR GANADO -->
     <section id="view-registrar-ganado" class="view">
-      <div class="back-bar" onclick="showView('home')">
+      <div class="back-bar" onclick="handleBackAction()">
         <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
-        <span>Volver al inicio</span>
+        <span>Volver al menú principal</span>
       </div>
 
       <div class="form-card">
@@ -205,7 +213,7 @@
           </div>
 
           <button type="submit" id="btnSubmitGanado" class="btn-primary-large" style="width: 100%; margin-top: 10px;">
-            <span id="btnSubmitGanadoText">Guardar en Google Sheets</span>
+            <span id="btnSubmitGanadoText">Guardar Ganado</span>
           </button>
         </form>
       </div>
@@ -213,9 +221,9 @@
 
     <!-- 3. VISTA: REGISTRAR PESAJE -->
     <section id="view-registrar-pesaje" class="view">
-      <div class="back-bar" onclick="showView('home')">
+      <div class="back-bar" onclick="handleBackAction()">
         <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
-        <span>Volver al inicio</span>
+        <span>Volver al menú principal</span>
       </div>
 
       <div class="form-card">
@@ -250,7 +258,7 @@
           </div>
 
           <button type="submit" id="btnSubmitPesaje" class="btn-accent-large" style="width: 100%; margin-top: 10px;">
-            <span id="btnSubmitPesajeText">Guardar Pesaje en Google Sheets</span>
+            <span id="btnSubmitPesajeText">Guardar Pesaje</span>
           </button>
         </form>
       </div>
@@ -258,9 +266,9 @@
 
     <!-- 4. VISTA: VER GANADO (LISTA) -->
     <section id="view-ver-ganado" class="view">
-      <div class="back-bar" onclick="showView('home')">
+      <div class="back-bar" onclick="handleBackAction()">
         <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
-        <span>Volver al inicio</span>
+        <span>Volver al menú principal</span>
       </div>
 
       <div class="search-filter-bar">
@@ -285,9 +293,9 @@
 
     <!-- 5 & 6. VISTA: FICHA INDIVIDUAL DE ANIMAL (DETALLE, FAMILIA, HISTORIAL) -->
     <section id="view-ficha-animal" class="view">
-      <div class="back-bar" onclick="showView('ver-ganado')">
+      <div class="back-bar" onclick="handleBackAction()">
         <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
-        <span>Volver a la lista</span>
+        <span>Volver a la lista de ganado</span>
       </div>
 
       <!-- Encabezado de la Ficha -->

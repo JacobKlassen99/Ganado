@@ -13,6 +13,9 @@ let appData = {
 
 let currentFilterSexo = "Todos";
 let currentSelectedAnimal = null;
+let currentView = "home";
+let navHistoryDepth = 0;
+let isHandlingPopState = false;
 
 // Inicialización
 document.addEventListener("DOMContentLoaded", () => {
@@ -23,6 +26,11 @@ document.addEventListener("DOMContentLoaded", () => {
   if (dateNac) dateNac.value = today;
   if (datePesaje) datePesaje.value = today;
 
+  // Asegurar estado inicial en el historial para Android y navegadores
+  if (!history.state || history.state.view !== "home") {
+    history.replaceState({ view: "home" }, "", "#home");
+  }
+
   // Inicializar PWA (Service Worker, Instalación y Actualizaciones)
   initPWA();
 
@@ -30,13 +38,79 @@ document.addEventListener("DOMContentLoaded", () => {
   fetchData();
 });
 
+// Control del Historial y Botón Atrás físico/gestual de Android
+window.addEventListener("popstate", (event) => {
+  isHandlingPopState = true;
+  try {
+    navHistoryDepth = Math.max(0, navHistoryDepth - 1);
+    const state = event.state;
+    if (state && state.view) {
+      if (state.view === "ficha-animal" && state.animalNumero) {
+        openFichaAnimal(state.animalNumero, false);
+      } else {
+        showView(state.view, false);
+      }
+    } else {
+      showView("home", false);
+    }
+  } finally {
+    isHandlingPopState = false;
+  }
+});
+
+// Soporte de tecla Escape para regresar en teclado físico
+window.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    const modal = document.getElementById("installGuideModal");
+    if (modal && modal.classList.contains("active")) {
+      modal.classList.remove("active");
+      return;
+    }
+    if (currentView !== "home") {
+      handleBackAction();
+    }
+  }
+});
+
+// Acción unificada para el botón Atrás (icono en pantalla y gesto/botón de Android)
+function handleBackAction() {
+  if (navHistoryDepth > 0) {
+    window.history.back();
+  } else {
+    // Si se ingresó directamente sin historial previo
+    if (currentView === "ficha-animal") {
+      showView("ver-ganado");
+    } else {
+      showView("home");
+    }
+  }
+}
+
 // Control de Vistas
-function showView(viewName) {
+function showView(viewName, pushToHistory = true, customState = null) {
+  if (viewName === currentView && !customState) return;
+
+  currentView = viewName;
+
   document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
   const target = document.getElementById(`view-${viewName}`);
   if (target) {
     target.classList.add("active");
     window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  // Actualizar visibilidad del botón Atrás en la cabecera
+  const headerBackBtn = document.getElementById("headerBackBtn");
+  if (headerBackBtn) {
+    headerBackBtn.style.display = viewName === "home" ? "none" : "inline-flex";
+  }
+
+  // Gestionar historial para el botón Atrás físico/gestual de Android
+  if (pushToHistory && !isHandlingPopState) {
+    navHistoryDepth++;
+    const stateObj = customState || { view: viewName };
+    const hash = customState && customState.animalNumero ? `#animal-${customState.animalNumero}` : `#${viewName}`;
+    history.pushState(stateObj, "", hash);
   }
 
   if (viewName === "home") {
@@ -122,7 +196,7 @@ async function fetchData(isManualRefresh = false) {
 
   if (refreshBtn) refreshBtn.classList.add("loading");
   banner.className = "status-banner loading";
-  bannerText.textContent = "Sincronizando con Google Sheets...";
+  bannerText.textContent = "Actualizando datos...";
 
   try {
     const response = await fetch(API_URL);
@@ -182,7 +256,7 @@ async function fetchData(isManualRefresh = false) {
 
       const nowTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       banner.className = "status-banner success";
-      bannerText.textContent = `Sincronizado con Google Sheets (${appData.ganado.length} animales)`;
+      bannerText.textContent = `Datos actualizados (${appData.ganado.length} animales)`;
       document.getElementById("statusBannerTime").textContent = nowTime;
 
       // Actualizar vista actual
@@ -194,14 +268,14 @@ async function fetchData(isManualRefresh = false) {
       if (activeView && activeView.id === "view-ver-ganado") {
         renderGanadoList();
       } else if (activeView && activeView.id === "view-ficha-animal" && currentSelectedAnimal) {
-        openFichaAnimal(currentSelectedAnimal.numeroGanado);
+        openFichaAnimal(currentSelectedAnimal.numeroGanado, false);
       }
 
       if (isManualRefresh) {
-        showToast("Datos actualizados desde Google Sheets", "success");
+        showToast("Datos actualizados correctamente", "success");
       }
     } else {
-      throw new Error(data.error || "Error al responder Google Sheets");
+      throw new Error(data.error || "Error al responder el servidor");
     }
   } catch (err) {
     console.error("Error al obtener datos:", err);
@@ -298,7 +372,7 @@ async function submitGanado(e) {
   }
 
   btn.disabled = true;
-  btnText.innerHTML = `<span class="loader"></span> Guardando en Google Sheets...`;
+  btnText.innerHTML = `<span class="loader"></span> Guardando ganado...`;
 
   const payload = {
     action: "addGanado",
@@ -336,7 +410,7 @@ async function submitGanado(e) {
     showToast(`Error al guardar: ${err.message}`, "error");
   } finally {
     btn.disabled = false;
-    btnText.textContent = "Guardar en Google Sheets";
+    btnText.textContent = "Guardar Ganado";
   }
 }
 
@@ -406,7 +480,7 @@ async function submitPesaje(e) {
   }
 
   btn.disabled = true;
-  btnText.innerHTML = `<span class="loader"></span> Guardando en Google Sheets...`;
+  btnText.innerHTML = `<span class="loader"></span> Guardando pesaje...`;
 
   const payload = {
     action: "addPesaje",
@@ -442,7 +516,7 @@ async function submitPesaje(e) {
     showToast(`Error al guardar pesaje: ${err.message}`, "error");
   } finally {
     btn.disabled = false;
-    btnText.textContent = "Guardar Pesaje en Google Sheets";
+    btnText.textContent = "Guardar Pesaje";
   }
 }
 
@@ -505,7 +579,7 @@ function renderGanadoList() {
 }
 
 // 6. FICHA DEL ANIMAL, GENEALOGÍA E HISTORIAL
-function openFichaAnimal(numero) {
+function openFichaAnimal(numero, pushToHistory = true) {
   const animal = appData.ganado.find(g => g.numeroGanado.toUpperCase() === String(numero).toUpperCase());
   if (!animal) {
     showToast(`Animal Nº ${numero} no encontrado`, "error");
@@ -513,7 +587,7 @@ function openFichaAnimal(numero) {
   }
 
   currentSelectedAnimal = animal;
-  showView("ficha-animal");
+  showView("ficha-animal", pushToHistory, { view: "ficha-animal", animalNumero: animal.numeroGanado });
 
   document.getElementById("fichaNumero").textContent = `Nº ${animal.numeroGanado}`;
   const badgeSexo = document.getElementById("fichaBadgeSexo");

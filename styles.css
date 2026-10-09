@@ -57,6 +57,41 @@ body {
   align-items: center;
 }
 
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-back-btn {
+  background: rgba(255, 255, 255, 0.18);
+  border: none;
+  color: #ffffff;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.header-back-btn:active {
+  background: rgba(255, 255, 255, 0.35);
+  transform: scale(0.92);
+}
+
+.header-back-btn svg {
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
+}
+
 .brand {
   display: flex;
   align-items: center;
@@ -621,14 +656,30 @@ body {
 
 /* Botón flotante volver */
 .back-bar {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 10px;
   margin-bottom: 14px;
   cursor: pointer;
   color: var(--primary-dark);
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 0.95rem;
+  padding: 8px 14px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-sm);
+  transition: background-color 0.15s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.back-bar:hover {
+  background: #e2e8f0;
+}
+
+.back-bar:active {
+  background: #cbd5e1;
+  transform: scale(0.97);
 }
 
 .back-bar svg {

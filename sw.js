@@ -1,6 +1,6 @@
 // Service Worker para Registrar Ganado PWA
 // Cache name versioning
-const CACHE_NAME = 'ganado-app-v1.0.1';
+const CACHE_NAME = 'ganado-app-v1.0.2';
 
 // Recursos estáticos mínimos requeridos para la app shell
 const STATIC_ASSETS = [
